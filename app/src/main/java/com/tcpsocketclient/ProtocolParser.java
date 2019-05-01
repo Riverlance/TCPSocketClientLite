@@ -3,6 +3,7 @@ package com.tcpsocketclient;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
+import android.widget.Toast;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -42,6 +43,17 @@ public class ProtocolParser implements Runnable {
                 // Basic data
                 short opcode = dataInputStream.readShort(); // Opcode Server to Client
                 final String username = dataInputStream.readUTF();
+
+                if (opcode == MainActivity.OPCODE_STC_SENDMESSAGE) {
+                    final String message = dataInputStream.readUTF();
+
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainActivity.mainActivity.getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
 
                 /*
                 if (opcode == MainActivity.OPCODE_STC_SELFCONNECT) {

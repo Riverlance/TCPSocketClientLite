@@ -40,7 +40,12 @@ public class ProtocolSender extends AsyncTask<String, Void, String> { // <Params
             // Basic data
             dataOutputStream.writeShort(opcode); // Operation code
             dataOutputStream.writeUTF(username);
+            dataOutputStream.writeUTF(Utils.getIPAddress()); // Self IPv4 (Client)
 
+            if (opcode == MainActivity.OPCODE_CTS_SENDMESSAGE) {
+                dataOutputStream.writeUTF(strings[1]); // param or targetUsername
+                dataOutputStream.writeUTF(strings[2]); // message
+            }
 
             /*
             if (opcode == MainActivity.OPCODE_CTS_SELFCONNECT) {

@@ -14,7 +14,7 @@ public class MainActivity extends AppCompatActivity {
     // Constants
     public static final String APP_NAME = "TCP Socket Client";
     public static final int DEFAULT_PORT = 7171;
-    public static final int DEFAULT_TIMETOKICK = 20000; // Has a copy on server
+    public static final int DEFAULT_TIMETOKICK = 120000; // Has a copy on server
     // Opcodes (Operation Codes)
     // CTS - Client to Server
     public static final short OPCODE_CTS_SENDMESSAGE = 1;
@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     public static final short OPCODE_STC_SELFDISCONNECT = 2; // Answer
     public static final short OPCODE_STC_VIEWUSERS = 3; // Answer
     public static final short OPCODE_STC_RENAMESELF = 4;
+    public static final short OPCODE_STC_TOAST = 5;
 
     // Needed stuffs
     public static MainActivity mainActivity;
@@ -95,16 +96,34 @@ public class MainActivity extends AppCompatActivity {
                 //Toast.makeText(this, String.format("Comando: '%s'", command), Toast.LENGTH_SHORT).show();
 
             // Command: send
+            // send -all <message>
+            // send -user <targetUsername> <message>
+            // Notificar caso o usuário não exista
             } else if (command.equals("send")) {
                 if (values.length == 1 || (values.length == 2 && !values[1].equals("-all") && !values[1].equals("-user"))) {
                     err = "Deve-se incluir -all ou -user como parâmetro do comando.";
-                } else if (values.length == 2) {
-                    err = "Deve-se incluir uma mensagem após o parâmetro.";
+                } else if (values.length == 2 && values[1].equals("-user")) {
+                    err = "Deve-se incluir o nome do usuário após o parâmetro.";
+                } else if (values.length == 2 && values[1].equals("-all") || values.length == 3 && values[1].equals("-user")) {
+                    err = "Deve-se incluir uma mensagem no final.";
                 } else {
                     String param = values[1];
-                    String value = values[2]; // Message
 
-                    //Toast.makeText(this, String.format("Comando: '%s' | Param: '%s' | Value: '%s'", command, param, value), Toast.LENGTH_SHORT).show();
+                    if (param.equals("-all")) {
+                        String value = values[2]; // Message
+                        // Toast.makeText(this, String.format("Comando: '%s' | Param: '%s' | Value: '%s'", command, param, value), Toast.LENGTH_SHORT).show();
+
+                        ProtocolSender protocolSender = new ProtocolSender();
+                        protocolSender.execute(String.format("%d", OPCODE_CTS_SENDMESSAGE), param, value);
+
+                    } else if (param.equals("-user")) {
+                        String targetUsername = values[2];
+                        String value = values[3]; // Message
+                        // Toast.makeText(this, String.format("Comando: '%s' | Param: '%s' | targetUsername: '%s' | Value: '%s'", command, param, targetUsername, value), Toast.LENGTH_SHORT).show();
+
+                        ProtocolSender protocolSender = new ProtocolSender();
+                        protocolSender.execute(String.format("%d", OPCODE_CTS_SENDMESSAGE), targetUsername, value);
+                    }
                 }
 
             // Command: list
@@ -112,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
                 //Toast.makeText(this, String.format("Comando: '%s'", command), Toast.LENGTH_SHORT).show();
 
             // Command: rename
+            // rename <newUsername>
             // Notificar se foi alterado com sucesso ou se já está em uso.
             } else if (command.equals("rename")) {
                 if (values.length == 1) {
