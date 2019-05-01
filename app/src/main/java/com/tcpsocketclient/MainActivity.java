@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,8 +26,7 @@ public class MainActivity extends AppCompatActivity {
     public static final short OPCODE_STC_SENDMESSAGE = 1;
     public static final short OPCODE_STC_SELFDISCONNECT = 2; // Answer
     public static final short OPCODE_STC_VIEWUSERS = 3; // Answer
-    public static final short OPCODE_STC_RENAMESELF = 4;
-    public static final short OPCODE_STC_TOAST = 5;
+    public static final short OPCODE_STC_TOAST = 4;
 
     // Needed stuffs
     public static MainActivity mainActivity;
@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     public EditText portEditText;
     public TextView logTextView;
     public EditText inputEditText;
+    public ScrollView scrollView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         portEditText = findViewById(R.id.portEditText);
         logTextView = findViewById(R.id.logTextView);
         inputEditText = findViewById(R.id.inputEditText);
+        scrollView = findViewById(R.id.scrollView);
         loadDefaultValues();
     }
 
@@ -158,5 +160,23 @@ public class MainActivity extends AppCompatActivity {
         // Loading data from app preferences
         ipEditText.setText(sp.getString("serverIP", ""));
         portEditText.setText(String.format("%d", sp.getInt("port", DEFAULT_PORT)));
+    }
+
+    public void scrollLog(final boolean bottom) {
+        // Scrolls to down
+        scrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                scrollView.fullScroll(bottom ? ScrollView.FOCUS_DOWN : ScrollView.FOCUS_UP);
+            }
+        });
+    }
+    public void scrollLog() {
+        scrollLog(true);
+    }
+
+    public void log(String string) {
+        logTextView.setText(String.format("%s%s", logTextView.getText(), string));
+        scrollLog();
     }
 }

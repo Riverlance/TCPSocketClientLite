@@ -45,22 +45,16 @@ public class ProtocolSender extends AsyncTask<String, Void, String> { // <Params
             if (opcode == MainActivity.OPCODE_CTS_SENDMESSAGE) {
                 dataOutputStream.writeUTF(strings[1]); // param or targetUsername
                 dataOutputStream.writeUTF(strings[2]); // message
-            }
-
-            /*
-            if (opcode == MainActivity.OPCODE_CTS_SELFCONNECT) {
-                dataOutputStream.writeUTF(Utils.getIPAddress()); // Self IPv4 (Client)
 
             } else if (opcode == MainActivity.OPCODE_CTS_SELFDISCONNECT) {
+                // Do nothing
 
-            } else if (opcode == MainActivity.OPCODE_CTS_UPDATEDUSERSLIST) {
+            } else if (opcode == MainActivity.OPCODE_CTS_VIEWUSERS) {
+                // Do nothing
 
-            } else if (opcode == MainActivity.OPCODE_CTS_SENDMESSAGE) {
-                System.out.println("enviou");
-                dataOutputStream.writeUTF(strings[1]); // Target username (or if is global chat)
-                dataOutputStream.writeUTF(strings[2]); // Message
+            } else if (opcode == MainActivity.OPCODE_CTS_RENAMESELF) {
+                dataOutputStream.writeUTF(strings[1]); // newUsername
             }
-            */
 
             // Close stream and socket connection
             dataOutputStream.close();
