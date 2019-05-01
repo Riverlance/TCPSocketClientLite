@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (port.equals("")) {
             err = "Digite a Porta.";
         } else if (message.equals("")) {
-            err = "Digite uma mensagem.";
+            err = "Digite um comando.";
         }
         if (err != null) {
             Toast.makeText(this, err, Toast.LENGTH_SHORT).show();
@@ -81,9 +81,57 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Saving data at app preferences
-        //spe.putString("serverIP", serverIP);
-        //spe.putInt("port", !port.equals("") ? Integer.parseInt(port) : DEFAULT_PORT);
-        //spe.commit();
+        spe.putString("serverIP", serverIP);
+        spe.putInt("port", !port.equals("") ? Integer.parseInt(port) : DEFAULT_PORT);
+        spe.commit();
+
+        String values[] = message.split(" ");
+
+        if (values.length > 0) {
+            String command = values[0];
+
+            // Command: bye
+            if (command.equals("bye")) {
+                //Toast.makeText(this, String.format("Comando: '%s'", command), Toast.LENGTH_SHORT).show();
+
+            // Command: send
+            } else if (command.equals("send")) {
+                if (values.length == 1 || (values.length == 2 && !values[1].equals("-all") && !values[1].equals("-user"))) {
+                    err = "Deve-se incluir -all ou -user como parâmetro do comando.";
+                } else if (values.length == 2) {
+                    err = "Deve-se incluir uma mensagem após o parâmetro.";
+                } else {
+                    String param = values[1];
+                    String value = values[2]; // Message
+
+                    //Toast.makeText(this, String.format("Comando: '%s' | Param: '%s' | Value: '%s'", command, param, value), Toast.LENGTH_SHORT).show();
+                }
+
+            // Command: list
+            } else if (command.equals("list")) {
+                //Toast.makeText(this, String.format("Comando: '%s'", command), Toast.LENGTH_SHORT).show();
+
+            // Command: rename
+            // Notificar se foi alterado com sucesso ou se já está em uso.
+            } else if (command.equals("rename")) {
+                if (values.length == 1) {
+                    err = "Deve-ser incluir o novo nome após o comando.";
+                } else {
+                    String newUsername = values[1];
+                    //Toast.makeText(this, String.format("Comando: '%s' | newUsername: '%s'", command, newUsername), Toast.LENGTH_SHORT).show();
+                }
+
+            } else {
+                err = "Comando inválido.";
+            }
+
+        } else {
+            err = "Comando inválido.";
+        }
+        if (err != null) {
+            Toast.makeText(this, err, Toast.LENGTH_SHORT).show();
+            return;
+        }
     }
 
     public void loadDefaultValues() {
