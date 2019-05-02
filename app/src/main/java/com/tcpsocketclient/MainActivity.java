@@ -72,6 +72,9 @@ public class MainActivity extends AppCompatActivity {
         String port = portEditText.getText().toString();
         String message = inputEditText.getText().toString();
 
+        // Clear input
+        inputEditText.setText("");
+
         // Basic errors
         String err = null;
         if (serverIP.equals("")) {
