@@ -66,7 +66,7 @@ public class ProtocolSender extends AsyncTask<String, Void, String> { // <Params
                 @Override
                 public void run() {
                     Context context = MainActivity.mainActivity.getApplicationContext();
-                    Toast.makeText(context, String.format("Servidor nao encontrado ou ocupado.\nIP: %s (%d)\nUser: %s", serverIP, port, username), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, String.format("Servidor não encontrado ou ocupado.\nIP: %s (%d)\nUser: %s", serverIP, port, username), Toast.LENGTH_SHORT).show();
                 }
             });
 
