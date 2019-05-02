@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity {
     // Constants
     public static final String APP_NAME = "TCP Socket Client";
     public static final int DEFAULT_PORT = 7171;
-    public static final int DEFAULT_TIMETOKICK = 120000; // Has a copy on server
+    public static final int DEFAULT_TIMETOKICK = 30000; // Has a copy on server
     // Opcodes (Operation Codes)
     // CTS - Client to Server
     public static final short OPCODE_CTS_SENDMESSAGE = 1;
@@ -26,7 +26,8 @@ public class MainActivity extends AppCompatActivity {
     public static final short OPCODE_STC_SENDMESSAGE = 1;
     public static final short OPCODE_STC_SELFDISCONNECT = 2; // Answer
     public static final short OPCODE_STC_VIEWUSERS = 3; // Answer
-    public static final short OPCODE_STC_TOAST = 4;
+    public static final short OPCODE_STC_RENAMESELF = 4;
+    public static final short OPCODE_STC_TOAST = 5;
 
     // Needed stuffs
     public static MainActivity mainActivity;
@@ -92,59 +93,77 @@ public class MainActivity extends AppCompatActivity {
 
         if (values.length > 0) {
             String command = values[0];
+            String username = sp.getString("username", "");
 
-            // Command: bye
-            if (command.equals("bye")) {
-                //Toast.makeText(this, String.format("Comando: '%s'", command), Toast.LENGTH_SHORT).show();
+            if (command.equals("rename") || !username.equals("")) {
+                // Command: bye
+                if (command.equals("bye")) {
+                    //Toast.makeText(this, String.format("Comando: '%s'", command), Toast.LENGTH_SHORT).show();
 
-            // Command: send
-            // send -all <message>
-            // send -user <targetUsername> <message>
-            // Notificar caso o usuário não exista
-            } else if (command.equals("send")) {
-                if (values.length == 1 || (values.length == 2 && !values[1].equals("-all") && !values[1].equals("-user"))) {
-                    err = "Deve-se incluir -all ou -user como parâmetro do comando.";
-                } else if (values.length == 2 && values[1].equals("-user")) {
-                    err = "Deve-se incluir o nome do usuário após o parâmetro.";
-                } else if (values.length == 2 && values[1].equals("-all") || values.length == 3 && values[1].equals("-user")) {
-                    err = "Deve-se incluir uma mensagem no final.";
-                } else {
-                    String param = values[1];
+                    // Command: send
+                    // send -all <message>
+                    // send -user <targetUsername> <message>
+                    // Notificar caso o usuário não exista
+                } else if (command.equals("send")) {
+                    if (values.length == 1 || (values.length == 2 && !values[1].equals("-all") && !values[1].equals("-user"))) {
+                        err = "Deve-se incluir -all ou -user como parâmetro do comando.";
+                    } else if (values.length == 2 && values[1].equals("-user")) {
+                        err = "Deve-se incluir o nome do usuário após o parâmetro.";
+                    } else if (values.length == 2 && values[1].equals("-all") || values.length == 3 && values[1].equals("-user")) {
+                        err = "Deve-se incluir uma mensagem no final.";
+                    } else {
+                        String param = values[1];
 
-                    if (param.equals("-all")) {
-                        String value = values[2]; // Message
-                        // Toast.makeText(this, String.format("Comando: '%s' | Param: '%s' | Value: '%s'", command, param, value), Toast.LENGTH_SHORT).show();
+                        if (param.equals("-all")) {
+                            String value = values[2]; // Message
+                            // Toast.makeText(this, String.format("Comando: '%s' | Param: '%s' | Value: '%s'", command, param, value), Toast.LENGTH_SHORT).show();
 
-                        ProtocolSender protocolSender = new ProtocolSender();
-                        protocolSender.execute(String.format("%d", OPCODE_CTS_SENDMESSAGE), param, value);
+                            ProtocolSender protocolSender = new ProtocolSender();
+                            protocolSender.execute(String.format("%d", OPCODE_CTS_SENDMESSAGE), param, value);
 
-                    } else if (param.equals("-user")) {
-                        String targetUsername = values[2];
-                        String value = values[3]; // Message
-                        // Toast.makeText(this, String.format("Comando: '%s' | Param: '%s' | targetUsername: '%s' | Value: '%s'", command, param, targetUsername, value), Toast.LENGTH_SHORT).show();
+                        } else if (param.equals("-user")) {
+                            String targetUsername = values[2];
+                            String value = values[3]; // Message
+                            // Toast.makeText(this, String.format("Comando: '%s' | Param: '%s' | targetUsername: '%s' | Value: '%s'", command, param, targetUsername, value), Toast.LENGTH_SHORT).show();
 
-                        ProtocolSender protocolSender = new ProtocolSender();
-                        protocolSender.execute(String.format("%d", OPCODE_CTS_SENDMESSAGE), targetUsername, value);
+                            ProtocolSender protocolSender = new ProtocolSender();
+                            protocolSender.execute(String.format("%d", OPCODE_CTS_SENDMESSAGE), targetUsername, value);
+                        }
                     }
-                }
 
-            // Command: list
-            } else if (command.equals("list")) {
-                //Toast.makeText(this, String.format("Comando: '%s'", command), Toast.LENGTH_SHORT).show();
+                    // Command: list
+                } else if (command.equals("list")) {
+                    //Toast.makeText(this, String.format("Comando: '%s'", command), Toast.LENGTH_SHORT).show();
 
-            // Command: rename
-            // rename <newUsername>
-            // Notificar se foi alterado com sucesso ou se já está em uso.
-            } else if (command.equals("rename")) {
-                if (values.length == 1) {
-                    err = "Deve-ser incluir o novo nome após o comando.";
+                    ProtocolSender protocolSender = new ProtocolSender();
+                    protocolSender.execute(String.format("%d", OPCODE_CTS_VIEWUSERS));
+
+                    // Command: rename
+                    // rename <newUsername>
+                    // Notificar se foi alterado com sucesso ou se já está em uso.
+                } else if (command.equals("rename")) {
+                    if (values.length == 1) {
+                        err = "Deve-se incluir o novo nome após o comando.";
+                    } else {
+                        String newUsername = values[1];
+
+                        if (!username.equals(newUsername)) {
+                            //Toast.makeText(this, String.format("Comando: '%s' | newUsername: '%s'", command, newUsername), Toast.LENGTH_SHORT).show();
+
+                            ProtocolSender protocolSender = new ProtocolSender();
+                            protocolSender.execute(String.format("%d", OPCODE_CTS_RENAMESELF), newUsername);
+
+                        } else {
+                            err = "Você já tem esse nome de usuário.";
+                        }
+                    }
+
                 } else {
-                    String newUsername = values[1];
-                    //Toast.makeText(this, String.format("Comando: '%s' | newUsername: '%s'", command, newUsername), Toast.LENGTH_SHORT).show();
+                    err = "Comando inválido.";
                 }
 
             } else {
-                err = "Comando inválido.";
+                err = "Use o comando rename para criar seu nome de usuário.";
             }
 
         } else {
@@ -176,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void log(String string) {
-        logTextView.setText(String.format("%s%s", logTextView.getText(), string));
+        logTextView.setText(String.format("%s\n%s", logTextView.getText(), string));
         scrollLog();
     }
 }

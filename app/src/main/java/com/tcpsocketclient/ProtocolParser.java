@@ -18,12 +18,13 @@ public class ProtocolParser implements Runnable {
     private SharedPreferences.Editor spe;
     // Allows to use UI within this background task
     // This is needed because this class is executed in another thread that is different of the main UI thread
-    Handler handler = new Handler();
+    Handler handler;
 
     public ProtocolParser() {
         // Needed stuffs
         sp = MainActivity.mainActivity.getSharedPreferences(MainActivity.APP_NAME, Context.MODE_PRIVATE);
         spe = sp.edit();
+        handler = new Handler();
     }
 
     @Override
@@ -71,6 +72,18 @@ public class ProtocolParser implements Runnable {
                         }
                     });
 
+                } else if (opcode == MainActivity.OPCODE_STC_RENAMESELF) {
+                    String newUsername = dataInputStream.readUTF();
+                    spe.putString("username", newUsername);
+                    spe.commit();
+
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainActivity.mainActivity.getApplicationContext(), "Renomeado com sucesso.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
                 } else if (opcode == MainActivity.OPCODE_STC_TOAST) {
                     final String message = dataInputStream.readUTF();
 
@@ -89,6 +102,8 @@ public class ProtocolParser implements Runnable {
             // serverSocket.close();
 
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
